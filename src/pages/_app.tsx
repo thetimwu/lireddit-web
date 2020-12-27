@@ -4,10 +4,10 @@ import { cacheExchange, Cache, QueryInput } from "@urql/exchange-graphcache";
 import theme from "../theme";
 import {
   RegisterMutation,
-  RegisterDocument,
   LoginMutation,
   MeDocument,
   MeQuery,
+  LogoutMutation,
 } from "../generated/graphql";
 
 function betterUpdateQuery<Result, Query>(
@@ -32,6 +32,17 @@ const client = createClient({
     cacheExchange({
       updates: {
         Mutation: {
+          logout: (_result, args, cache, info) => {
+            //just null user , not invalidate user, not wipe cache
+            betterUpdateQuery<LogoutMutation, MeQuery>(
+              cache,
+              { query: MeDocument },
+              _result,
+              () => {
+                return { me: null };
+              }
+            );
+          },
           login: (_result, args, cache, info) => {
             // cache.updateQuery({query:MeDocument}, (data:MeQuery)=>{})
             // immer is used
