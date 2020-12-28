@@ -2,12 +2,16 @@ import { Box, Flex, Link, Button } from "@chakra-ui/react";
 import React from "react";
 import NextLink from "next/link";
 import { useMeQuery, useLogoutMutation } from "../generated/graphql";
+import { isServer } from "../utils/isServer";
 
 interface NavBarProps {}
 
 const NavBar: React.FC<NavBarProps> = ({}) => {
   const [{ fetching: fetchingLogout }, logout] = useLogoutMutation();
-  const [{ data, fetching }] = useMeQuery();
+  //since Navbar is included in ssr index page, do not fetching if its client rendring
+  const [{ data, fetching }] = useMeQuery({
+    pause: isServer(),
+  });
   let body = null;
 
   if (fetching) {
