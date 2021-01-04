@@ -21,11 +21,12 @@ const Register: React.FC<registerProps> = ({}) => {
         initialValues={{ email: "", username: "", password: "" }}
         onSubmit={async (value, { setErrors }) => {
           const response = await register({ options: value });
-          if (response.data.register.errors) {
-            setErrors(toErrorMap(response.data.register.errors));
-          } else if (response.data.register.user) {
-            router.push("/");
-          }
+          if (response.data)
+            if (response.data.register.errors) {
+              setErrors(toErrorMap(response.data.register.errors));
+            } else if (response.data.register.user) {
+              router.push("/");
+            }
         }}
       >
         {({ isSubmitting }) => (
