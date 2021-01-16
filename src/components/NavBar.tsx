@@ -4,19 +4,21 @@ import NextLink from "next/link";
 import { useMeQuery, useLogoutMutation } from "../generated/graphql";
 import { isServer } from "../utils/isServer";
 import { useRouter } from "next/router";
+import { useApolloClient } from "@apollo/client";
 
 interface NavBarProps {}
 
 const NavBar: React.FC<NavBarProps> = ({}) => {
-  const [{ fetching: fetchingLogout }, logout] = useLogoutMutation();
+  const [logout, { loading: fetchingLogout }] = useLogoutMutation();
   //since Navbar is included in ssr index page, do not fetching if its client rendring
-  const [{ data, fetching }] = useMeQuery({
-    pause: isServer(),
+  const { data, loading } = useMeQuery({
+    skip: isServer(),
   });
   let body = null;
   const router = useRouter();
+  const apolloClient = useApolloClient();
 
-  if (fetching) {
+  if (loading) {
     //loading
   } else if (!data?.me) {
     //not logged in
@@ -45,7 +47,8 @@ const NavBar: React.FC<NavBarProps> = ({}) => {
         <Button
           onClick={async () => {
             await logout();
-            router.reload();
+            // router.reload();
+            await apolloClient.resetStore();
           }}
           disabled={fetchingLogout}
           variant="link"
